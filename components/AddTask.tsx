@@ -1,46 +1,116 @@
 "use client";
 
-import { useState } from "react";
 import InputField from "./InputField";
 import Subheading from "./Subheading";
 import Button from "./Button";
+import { Controller, useForm } from "react-hook-form";
+import { CreateTaskInput, createTaskSchema } from "@/schemas/task";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useAction } from "next-safe-action/hooks";
+import { createTaskAction } from "@/lib/actions/task.actions";
+import Tip from "./Tip";
 
 function AddTask() {
-  const [taskData, setTaskData] = useState({
-    title: "",
-    description: "",
+  const {
+    handleSubmit,
+    reset,
+    control,
+    watch,
+    formState: { isValid, isDirty, errors },
+  } = useForm<CreateTaskInput>({
+    resolver: zodResolver(createTaskSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+    },
   });
+  const { execute, status } = useAction(createTaskAction, {
+    onSuccess({ data }) {
+      if (data.success) {
+        reset();
+      }
+    },
+  });
+  const isPending = status === "executing";
+
+  const onSubmit = (data: CreateTaskInput) => {
+    execute(data);
+  };
+
   return (
     <div className="mb-4">
       <Subheading>Add Task</Subheading>
-      <form className="mt-2 bg-slate-200 rounded-2xl px-3 py-4">
-        <div className="mb-3 sm:flex sm:items-center">
-          <label className="block w-30 mb-1 sm:m-0">Title</label>
-          <InputField
-            value={taskData.title}
-            theme="medium"
-            setValue={(value) => setTaskData({ ...taskData, title: value })}
-            placeholder="What are you planning to do ?"
-            className="flex-1"
-          />
+      <form
+        className="mt-2 bg-slate-200 rounded-2xl px-3 py-4"
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <div className="mb-3">
+          <div className="sm:flex sm:items-center">
+            <label className="block w-30 mb-1 sm:m-0">Title</label>
+            <Controller
+              name="title"
+              control={control}
+              render={({ field }) => (
+                <InputField
+                  value={watch("title")}
+                  theme="medium"
+                  setValue={(value: string) => {
+                    field.onChange(value);
+                  }}
+                  placeholder="What are you planning to do ?"
+                  className="flex-1"
+                  onBlur={field.onBlur}
+                />
+              )}
+            />
+          </div>
+          {errors.title?.message && (
+            <Tip type="error">{errors.title.message}</Tip>
+          )}
         </div>
-        <div className="mb-3 sm:flex sm:items-center">
-          <label className="block w-30">Desccription</label>
-          <InputField
-            value={taskData.description}
-            setValue={(value) =>
-              setTaskData({ ...taskData, description: value })
-            }
-            theme="medium"
-            placeholder="Describe it,"
-            className="flex-1"
-          />
+        <div className="mb-3">
+          <div className="sm:flex sm:items-center">
+            <label className="block w-30">Desccription</label>
+            <Controller
+              name="description"
+              control={control}
+              render={({ field }) => (
+                <InputField
+                  value={watch("description")}
+                  theme="medium"
+                  setValue={(value: string) => {
+                    field.onChange(value);
+                  }}
+                  placeholder="Describe it :D"
+                  className="flex-1"
+                  onBlur={field.onBlur}
+                />
+              )}
+            />
+          </div>
+          {errors.description?.message && (
+            <Tip type="error">{errors.description.message}</Tip>
+          )}
         </div>
+
         <div className="flex gap-3 justify-end">
-          <Button size="medium" className="" type="button">
-            Clear
-          </Button>
-          <Button size="medium" theme="primary" className="">
+          {isDirty && (
+            <Button
+              size="medium"
+              className=""
+              type="button"
+              onClick={() => reset()}
+              disabled={isPending}
+            >
+              Clear
+            </Button>
+          )}
+          <Button
+            size="medium"
+            theme="primary"
+            type="submit"
+            disabled={!isValid || isPending}
+          >
             Add Task
           </Button>
         </div>
