@@ -47,7 +47,7 @@ const InputField = ({
   return (
     <div
       className={twMerge(
-        "flex h-10 w-full rounded-full duration-150 border",
+        "flex h-10 w-full text-sm rounded-full duration-150 border",
         themes[theme],
         className,
         disabled && "opacity-50 pointer-events-none",

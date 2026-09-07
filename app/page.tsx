@@ -1,13 +1,13 @@
 import AddTask from "@/components/AddTask";
 import MyTasks from "@/components/MyTasks";
-import Subheading from "@/components/Subheading";
-import { CheckCircle, Circle, Loader } from "lucide-react";
+import prisma from "@/lib/prisma";
 
-export default function Home() {
+export default async function Home() {
+  const tasks = await prisma.task.findMany({ orderBy: { createdAt: "desc" } });
   return (
     <>
       <AddTask />
-      <MyTasks />
+      <MyTasks tasks={tasks} />
     </>
   );
 }

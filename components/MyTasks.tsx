@@ -3,25 +3,21 @@
 import { useState } from "react";
 import Subheading from "./Subheading";
 import Task from "./Task";
+import Prisma from "@prisma/client";
 
-const dummyTasks = [
-  { id: "01", title: "Task No 1", description: "Dummy Desc", isDone: false },
-  { id: "02", title: "Task No 2", description: "Dummy Desc", isDone: false },
-  { id: "03", title: "Task No 3", description: "Dummy Desc", isDone: false },
-  { id: "04", title: "Task No 4", description: "Dummy Desc", isDone: false },
-  { id: "05", title: "Task No 5", description: "Dummy Desc", isDone: false },
-  { id: "06", title: "Task No 6", description: "Dummy Desc", isDone: false },
-];
+interface Props {
+  tasks: Prisma.Task[];
+}
 
-function MyTasks() {
+function MyTasks({ tasks = [] }: Props) {
   const [editTaskId, setEditTaskId] = useState<string | null>(null);
-  // const completedTasks = dummyTasks.filter((t) => t.isDone);
-  // const uncompletedTasks = dummyTasks.filter((t) => !t.isDone);
+  const completedTasks = tasks.filter((t) => t.isDone);
+  const uncompletedTasks = tasks.filter((t) => !t.isDone);
   return (
     <div className="">
       <Subheading>My Tasks</Subheading>
       <div className="mt-2">
-        {dummyTasks.map((task) => (
+        {uncompletedTasks.map((task) => (
           <Task
             key={task.id}
             {...task}
@@ -30,6 +26,25 @@ function MyTasks() {
           />
         ))}
       </div>
+      {completedTasks.length > 0 && (
+        <div className="">
+          <p className="text-sm text-center text-slate-400 my-2 relative before:absolute before:top-1/2 before:left-[50%] before:-translate-x-27 before:translate-y-[-50%] before:h-px before:w-10 before:bg-slate-400 after:absolute after:top-1/2 after:left-[50%] after:translate-x-17 after:translate-y-[-50%] after:h-px after:w-10 after:bg-slate-400">
+            Completed Tasks
+          </p>
+          <div className="">
+            {completedTasks.map((task) => (
+              <Task
+                key={task.id}
+                {...task}
+                editTaskId={editTaskId}
+                setEditing={(editing) =>
+                  setEditTaskId(editing ? task.id : null)
+                }
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
