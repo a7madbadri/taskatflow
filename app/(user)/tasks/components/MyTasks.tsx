@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Subheading from "./Subheading";
+import Subheading from "@/components/Subheading";
 import Task from "./Task";
 import Prisma from "@prisma/client";
+import { useSession } from "next-auth/react";
 
 interface Props {
   tasks: Prisma.Task[];
@@ -13,6 +14,7 @@ function MyTasks({ tasks = [] }: Props) {
   const [editTaskId, setEditTaskId] = useState<string | null>(null);
   const completedTasks = tasks.filter((t) => t.isDone);
   const uncompletedTasks = tasks.filter((t) => !t.isDone);
+
   return (
     <div className="">
       <Subheading>My Tasks</Subheading>

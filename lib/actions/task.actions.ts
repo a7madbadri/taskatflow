@@ -8,14 +8,24 @@ import {
   editTask,
   getTaskById,
   toggleTaskStatus,
-} from "../services/task.service";
+} from "../services/task.services";
 import { revalidatePath } from "next/cache";
 import z from "zod";
+import { auth } from "@/auth";
 
 export const createTaskAction = actionClient
   .inputSchema(createTaskSchema)
   .action(async ({ parsedInput }) => {
-    await createTask(parsedInput);
+    const session = await auth();
+    if (!session)
+      return {
+        success: false,
+        message: "unauthorized",
+      };
+    const {
+      user: { id },
+    } = session;
+    await createTask(parsedInput, id);
     revalidatePath("/");
     return {
       success: true,

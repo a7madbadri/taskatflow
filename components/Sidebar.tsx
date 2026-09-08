@@ -2,15 +2,34 @@
 
 import { Bell, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Nav from "./Nav";
+import { usePathname } from "next/navigation";
+import { handleOutsideClick } from "@/utils";
 
 function Sidebar() {
+  const sidebarRef = useRef<HTMLDivElement | null>(null);
   const [isExpanded, setisExpanded] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setTimeout(() => setisExpanded(false), 0);
+  }, [pathname]);
+
+  useEffect(() => {
+    const outsideClickFn = (e: MouseEvent) =>
+      handleOutsideClick<HTMLDivElement>(sidebarRef, e, () =>
+        setisExpanded(false),
+      );
+    document.addEventListener("mousedown", outsideClickFn);
+
+    return () => document.removeEventListener("mousedown", outsideClickFn);
+  }, []);
 
   return (
     <aside
       className={`bg-indigo-200 rounded-xl flex flex-col lg:w-full overflow-hidden duration-150 z-10 ${isExpanded ? "w-64 shadow-[0_0_20px_-2px_#00000055]" : "w-12"}`}
+      ref={sidebarRef}
     >
       <div className="mb-2 px-3 flex items-center relative h-12">
         <h1
@@ -41,12 +60,12 @@ function Sidebar() {
             Notifications
           </label>
         </div>
-        <div className="mb-3 px-1.5 flex items-center gap-2">
+        <div className="mb-3 px-2 flex items-center gap-2">
           <Image
             src="/images/profile.png"
             alt="profile pic"
-            width={36}
-            height={36}
+            width={32}
+            height={32}
             className="rounded-full"
           />
           <p>a7madbadri</p>

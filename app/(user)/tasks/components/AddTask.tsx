@@ -1,14 +1,14 @@
 "use client";
 
-import InputField from "./InputField";
-import Subheading from "./Subheading";
-import Button from "./Button";
+import InputField from "@/components/InputField";
+import Subheading from "@/components/Subheading";
+import Button from "@/components/Button";
 import { Controller, useForm } from "react-hook-form";
 import { CreateTaskInput, createTaskSchema } from "@/schemas/task";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAction } from "next-safe-action/hooks";
 import { createTaskAction } from "@/lib/actions/task.actions";
-import Tip from "./Tip";
+import Tip from "@/components/Tip";
 
 function AddTask() {
   const {
