@@ -2,8 +2,6 @@
 
 import { CheckCircle, Circle, Edit, Loader, Trash2 } from "lucide-react";
 import { useState } from "react";
-import Button from "./Button";
-import InputField from "./InputField";
 import { useAction } from "next-safe-action/hooks";
 import {
   deleteTaskAction,
@@ -30,21 +28,12 @@ function Task({
 }: Props) {
   const editingMe = editTaskId === id ? true : false;
   const editing = editTaskId ? true : false;
-  const [editingTaskData, setEditingTaskData] = useState({
-    title: title,
-    description: description,
-  });
 
-  const {
-    execute: toggleExecute,
-    status: toggleStatus,
-    result: toggleResult,
-  } = useAction(toggleTaskStatusAction);
-  const {
-    execute: deleteExecute,
-    status: deleteStatus,
-    result: deleteResult,
-  } = useAction(deleteTaskAction);
+  const { execute: toggleExecute, status: toggleStatus } = useAction(
+    toggleTaskStatusAction,
+  );
+  const { execute: deleteExecute, status: deleteStatus } =
+    useAction(deleteTaskAction);
   const isTogglePending = toggleStatus === "executing";
   const isDeletePending = deleteStatus === "executing";
   return (

@@ -6,8 +6,8 @@ export const getTaskById = (id: string) => {
 };
 
 /** Create a new personal task */
-export const createTask = (data: CreateTaskInput) => {
-  return prisma.task.create({ data });
+export const createTask = (data: CreateTaskInput, userId: string) => {
+  return prisma.task.create({ data: { ...data, userId } });
 };
 
 export const toggleTaskStatus = (id: string, isDone: boolean) => {
