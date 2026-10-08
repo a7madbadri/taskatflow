@@ -8,12 +8,15 @@ import {
   toggleTaskStatusAction,
 } from "@/lib/actions/task.actions";
 import EditTask from "./EditTask";
+import TaskMenu from "./TaskMenu";
+import { foramtDate } from "@/utils";
 
 interface Props {
   id: string;
   title: string;
   description: string;
   isDone: boolean;
+  createdAt: Date;
   editTaskId: string | null;
   setEditing: (editing: boolean) => void;
 }
@@ -23,6 +26,7 @@ function Task({
   title,
   description,
   isDone,
+  createdAt,
   editTaskId,
   setEditing,
 }: Props) {
@@ -38,7 +42,7 @@ function Task({
   const isDeletePending = deleteStatus === "executing";
   return (
     <div
-      className={`bg-indigo-100 border border-indigo-200 p-2 rounded-xl not-last:mb-2 ${editing && !editingMe ? "opacity-50 pointer-events-none" : ""}`}
+      className={`bg-slate-50 border border-slate-200 p-2 rounded-xl not-last:mb-2 ${editing && !editingMe ? "opacity-50 pointer-events-none" : ""}`}
     >
       {editing && editingMe ? (
         <EditTask
@@ -50,7 +54,7 @@ function Task({
       ) : (
         <>
           <div
-            className={`flex gap-2 mb-1 cursor-pointer w-fit ${isTogglePending ? "opacity-50 pointer-events-none" : isDone ? "opacity-50" : ""}`}
+            className={`flex gap-2 mb-1 cursor-pointer w-full items-center ${isTogglePending ? "opacity-50 pointer-events-none" : isDone ? "opacity-50" : ""}`}
           >
             <button className="" onClick={() => toggleExecute({ id })}>
               {isTogglePending ? (
@@ -61,26 +65,20 @@ function Task({
                 <Circle size={18} />
               )}
             </button>
-            <p className={isDone ? "line-through" : ""}>{title}</p>
+            <p
+              className={`text-sm font-medium flex-1 ${isDone ? "line-through" : ""}`}
+            >
+              {title}
+            </p>
+            <TaskMenu
+              onEdit={() => setEditing(true)}
+              onDelete={() => deleteExecute({ id })}
+            />
           </div>
           <p className="text-sm text-slate-600">{description}</p>
-          <hr className="w-full max-w-40 border-indigo-300 my-2" />
-          <div className="flex justify- gap-2">
-            {!isDone && (
-              <button
-                className="size-8 grid place-items-center bg-slate-300 rounded-sm duration-150 hover:bg-slate-400 hover:scale-95"
-                onClick={() => setEditing(true)}
-              >
-                <Edit size={18} />
-              </button>
-            )}
-            <button
-              className="size-8 grid place-items-center bg-red-300 text-red-700 rounded-sm duration-150 hover:bg-red-400 hover:scale-95"
-              onClick={() => deleteExecute({ id })}
-              disabled={isDeletePending}
-            >
-              <Trash2 size={18} />
-            </button>
+          <hr className="w-full  border-slate-200 my-2" />
+          <div className="">
+            <p className="text-sm text-slate-500">{foramtDate(createdAt)}</p>
           </div>
         </>
       )}

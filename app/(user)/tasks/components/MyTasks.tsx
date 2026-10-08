@@ -4,7 +4,6 @@ import { useState } from "react";
 import Subheading from "@/components/Subheading";
 import Task from "./Task";
 import Prisma from "@prisma/client";
-import { useSession } from "next-auth/react";
 
 interface Props {
   tasks: Prisma.Task[];
@@ -16,8 +15,17 @@ function MyTasks({ tasks = [] }: Props) {
   const uncompletedTasks = tasks.filter((t) => !t.isDone);
 
   return (
-    <div className="">
+    <div className="main-card p-3 flex-1">
       <Subheading>My Tasks</Subheading>
+      {tasks.length === 0 && (
+        <div className="size-full flex items-center justify-center text-center text-sm text-slate-500">
+          <p>
+            You&apos;ve no any tasks
+            <br />
+            Add some tasks up there
+          </p>
+        </div>
+      )}
       <div className="mt-2">
         {uncompletedTasks.map((task) => (
           <Task

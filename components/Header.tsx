@@ -1,17 +1,33 @@
 "use client";
 
+import { handleOutsideClick } from "@/utils";
+import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, MoreVertical } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
+import HeaderMenu, { HeaderMenuProps } from "./HeaderMenu";
+
+type Option = {
+  label: string;
+  action: () => void;
+};
 
 interface Props {
   title: string;
   fallbackPath?: string;
+  headerMenuProps?: HeaderMenuProps;
   className?: string;
 }
 
-function Header({ title, fallbackPath = "/", className }: Props) {
+function Header({
+  title,
+  fallbackPath = "/",
+  headerMenuProps,
+  className,
+}: Props) {
   const router = useRouter();
+  const [isOptionsMenuOpen, setIsOptionsMenuOpen] = useState(false);
 
   const handleBack = () => {
     if (
@@ -26,20 +42,18 @@ function Header({ title, fallbackPath = "/", className }: Props) {
   return (
     <header
       className={twMerge(
-        "h-12 bg-indigo-200 rounded-xl flex items-center px-2 gap-2 sticky top-0 z-1",
+        "main-card h-12 flex items-center px-2 gap-2 sticky top-0 z-1",
         className,
       )}
     >
       <button
-        className="size-8 rounded-full grid place-items-center duration-150 hover:bg-white/50"
+        className="size-8 rounded-full grid place-items-center duration-150 hover:bg-slate-100"
         onClick={handleBack}
       >
         <ChevronLeft size={22} />
       </button>
       <h3 className="flex-1">{title}</h3>
-      <button className="size-8 rounded-full grid place-items-center duration-150 hover:bg-white/50">
-        <MoreVertical size={22} />
-      </button>
+      {headerMenuProps && <HeaderMenu {...headerMenuProps} />}
     </header>
   );
 }

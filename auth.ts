@@ -4,7 +4,7 @@ import Google from "next-auth/providers/google";
 import prisma from "./lib/prisma";
 
 const googleClientId = process.env.AUTH_GOOGLE_ID;
-const googleClientSecret = process.env.AUTH_GOOGLE_CLIENT;
+const googleClientSecret = process.env.AUTH_GOOGLE_SECRET;
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [

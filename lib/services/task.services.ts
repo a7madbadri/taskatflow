@@ -6,8 +6,12 @@ export const getTaskById = (id: string) => {
 };
 
 /** Create a new personal task */
-export const createTask = (data: CreateTaskInput, userId: string) => {
-  return prisma.task.create({ data: { ...data, userId } });
+export const createTask = (
+  data: CreateTaskInput,
+  userId: string | null,
+  teamId: string | null = null,
+) => {
+  return prisma.task.create({ data: { ...data, userId, teamId } });
 };
 
 export const toggleTaskStatus = (id: string, isDone: boolean) => {
@@ -16,7 +20,7 @@ export const toggleTaskStatus = (id: string, isDone: boolean) => {
 
 export const editTask = ({ id, title, description }: EditTaskInput) => {
   return prisma.task.update({
-    where: { id: id },
+    where: { id },
     data: { title, description },
   });
 };

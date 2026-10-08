@@ -3,6 +3,10 @@ import "./globals.css";
 import localFont from "next/font/local";
 import Providers from "@/components/Providers";
 import { ReactNode } from "react";
+import { Geist } from "next/font/google";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const robotoSlab = localFont({
   src: [
@@ -21,7 +25,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${robotoSlab.variable} antialiased`}>
+    <html lang="en" className={cn("antialiased", robotoSlab.variable, "font-sans", geist.variable)}>
       <body className="min-h-full font-robotoSlab text-slate-900">
         <Providers>{children}</Providers>
       </body>
