@@ -15,9 +15,9 @@ function SharedTasks() {
     <div className="scrollbar-hide lg:overflow-auto lg:col-start-2 lg:row-start-1 lg:row-span-2 xl:col-span-2 xl:col-start-2">
       <Subheading>Shared Tasks</Subheading>
       <div className="mt-2">
-        {dummyTasks.map((task) => (
+        {/* {dummyTasks.map((task) => (
           <Assignment key={task.id} {...task} />
-        ))}
+        ))} */}
       </div>
     </div>
   );
