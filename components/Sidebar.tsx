@@ -17,18 +17,19 @@ function Sidebar() {
   }, [pathname]);
 
   useEffect(() => {
-    const outsideClickFn = (e: MouseEvent) =>
+    const handleOutsideClicksFn = (e: MouseEvent) =>
       handleOutsideClick<HTMLDivElement>(sidebarRef, e, () =>
         setisExpanded(false),
       );
-    document.addEventListener("mousedown", outsideClickFn);
+    document.addEventListener("mousedown", handleOutsideClicksFn);
 
-    return () => document.removeEventListener("mousedown", outsideClickFn);
+    return () =>
+      document.removeEventListener("mousedown", handleOutsideClicksFn);
   }, []);
 
   return (
     <aside
-      className={`bg-indigo-200 rounded-xl flex flex-col lg:w-full overflow-hidden duration-150 z-10 ${isExpanded ? "w-64 shadow-[0_0_20px_-2px_#00000055]" : "w-12"}`}
+      className={`main-card flex flex-col lg:w-full overflow-hidden duration-150 z-10  ${isExpanded ? "w-64 shadow-[0_0_20px_-2px_#00000055]" : "w-12"}`}
       ref={sidebarRef}
     >
       <div className="mb-2 px-3 flex items-center relative h-12">

@@ -38,12 +38,9 @@ function AddTask() {
   };
 
   return (
-    <div className="mb-4">
+    <div className="mb-4 main-card p-3">
       <Subheading>Add Task</Subheading>
-      <form
-        className="mt-2 bg-slate-200 rounded-2xl px-3 py-4"
-        onSubmit={handleSubmit(onSubmit)}
-      >
+      <form className="mt-2 rounded-2xl" onSubmit={handleSubmit(onSubmit)}>
         <div className="mb-3">
           <div className="sm:flex sm:items-center">
             <label className="block w-30 mb-1 sm:m-0">Title</label>

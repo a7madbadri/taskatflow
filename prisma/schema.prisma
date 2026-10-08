@@ -13,16 +13,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  OWNER
+  MEMBER
+}
+
 model User {
   id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  name          String?
-  email         String?   @unique
+  name          String
+  email         String    @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
 
   personalTasks Task[] @relation("PersonalTasks")
+
+  memberships Membership[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -76,7 +83,49 @@ model Task {
   description String
   isDone      Boolean @default(false)
 
-  userId    String?  @db.ObjectId
-  user      User?    @relation("PersonalTasks", fields: [userId], references: [id], onDelete: Cascade)
+  userId String? @db.ObjectId
+  user   User?   @relation("PersonalTasks", fields: [userId], references: [id], onDelete: Cascade)
+
+  teamId String? @db.ObjectId
+  team   Team?   @relation("TeamTasks", fields: [teamId], references: [id], onDelete: Cascade)
+
+  assignments Assignment[]
+  createdAt   DateTime     @default(now())
+}
+
+model Team {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+
+  memberships Membership[]
+  team        Task[]       @relation("TeamTasks")
+  assignments Assignment[]
+}
+
+model Membership {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  role Role   @default(MEMBER)
+
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  teamId String @db.ObjectId
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  assignments Assignment[]
+
   createdAt DateTime @default(now())
+}
+
+model Assignment {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  taskId       String     @db.ObjectId
+  task         Task       @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  teamId       String     @db.ObjectId
+  team         Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  membershipId String     @db.ObjectId
+  membership   Membership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+
+  isDone Boolean @default(false)
 }

@@ -15,9 +15,11 @@ export default async function UserLayout({
   }
 
   return (
-    <div className="h-dvh w-dvw bg-slate-50 grid grid-cols-[48px_1fr] md:grid-cols-[auto_1fr] lg:grid-cols-[256px_1fr] p-4 overflow-hidden">
+    <div className="h-dvh w-dvw bg-slate-50 grid grid-cols-[48px_1fr] md:grid-cols-[auto_1fr] lg:grid-cols-[256px_1fr] p-4 overflow-hidden bg-slate-100">
       <Sidebar />
-      <main className="pl-4 overflow-scroll scrollbar-hide">{children}</main>
+      <main className="pl-4 overflow-scroll scrollbar-hide flex flex-col">
+        {children}
+      </main>
     </div>
   );
 }

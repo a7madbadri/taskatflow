@@ -1,7 +1,11 @@
-import { ComponentPropsWithRef } from "react";
+import Link, { LinkProps } from "next/link";
+import { ComponentPropsWithRef, ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
+import { string } from "zod";
 
-interface ButtonProps extends ComponentPropsWithRef<"button"> {
+type CustomLinkProps = {
+  children: ReactNode;
+  className?: string;
   theme?:
     | "default"
     | "default2"
@@ -12,23 +16,22 @@ interface ButtonProps extends ComponentPropsWithRef<"button"> {
     | "danger2";
   size?: "small" | "medium" | "large";
   disabled?: boolean;
-}
+} & LinkProps &
+  ComponentPropsWithRef<"a">;
 
-const Button = ({
+const CustomLink = ({
   children,
-  type,
   className,
   theme = "default",
   size = "small",
-  onClick,
   disabled = false,
-  ref,
-}: ButtonProps) => {
+  ...props
+}: CustomLinkProps) => {
   const themes = {
     default: "bg-slate-300 text-slate-800 font-normal",
-    default2: "bg-slate-300 border border-slate-400 text-slate-800 font-normal",
+    default2: "bg-slate-300 text-slate-800 font-normal",
     primary: "bg-indigo-600 text-white font-semibold hover:bg-indigo-800",
-    secondary: "bg-indigo-600/20 text-slate-700 hover:bg-cream",
+    secondary: "bg-primary text-white font-semibold hover:bg-cream",
     dark: "bg-dark-accent text-white font-semibold hover:bg-accent",
     danger: "bg-red-500 text-white font-medium",
     danger2: "bg-red-600/30 text-red-600",
@@ -39,22 +42,19 @@ const Button = ({
     large: "h-12 px-5",
   };
   return (
-    <button
-      type={type}
+    <Link
       className={twMerge(
-        "rounded-full text-sm text-nowrap duration-160 hover:scale-96",
+        "rounded-full text-sm text-nowrap flex items-center duration-160 hover:scale-96",
         disabled && "opacity-50 pointer-events-none",
         sizes[size],
         themes[theme],
         className,
       )}
-      onClick={onClick}
-      disabled={disabled}
-      ref={ref}
+      {...props}
     >
       {children}
-    </button>
+    </Link>
   );
 };
 
-export default Button;
+export default CustomLink;
