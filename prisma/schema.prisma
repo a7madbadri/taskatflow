@@ -18,6 +18,18 @@ enum Role {
   MEMBER
 }
 
+enum NotificationType {
+  NON
+  TEAM_INVITATION
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  REVOKED
+}
+
 model User {
   id            String    @id @default(auto()) @map("_id") @db.ObjectId
   name          String
@@ -27,12 +39,18 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
-  personalTasks Task[] @relation("PersonalTasks")
+  tasks Task[] @relation("PersonalTasks")
 
   memberships Membership[]
 
+  notifications Notification[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  sentInvitations Invitation[] @relation("SentInvitations")
+
+  receivedInvitaions Invitation[] @relation("ReceivedInvitaions")
 }
 
 model Account {
@@ -101,6 +119,8 @@ model Team {
   memberships Membership[]
   tasks       Task[]       @relation("TeamTasks")
   assignments Assignment[]
+
+  invitations Invitation[]
 }
 
 model Membership {
@@ -116,6 +136,8 @@ model Membership {
   assignments Assignment[]
 
   createdAt DateTime @default(now())
+
+  @@unique([userId, teamId])
 }
 
 model Assignment {
@@ -129,4 +151,33 @@ model Assignment {
 
   isDone    Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+model Notification {
+  id      String           @id @default(auto()) @map("_id") @db.ObjectId
+  message String
+  type    NotificationType
+  data    Json?
+  userId  String           @db.ObjectId
+  user    User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isRead  Boolean          @default(false)
+
+  createdAt DateTime @default(now())
+}
+
+model Invitation {
+  id     String           @id @default(auto()) @map("_id") @db.ObjectId
+  status InvitationStatus @default(PENDING)
+  teamId String           @db.ObjectId
+  team   Team             @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  inviterId String @db.ObjectId
+  inviter   User   @relation("SentInvitations", fields: [inviterId], references: [id], onDelete: Cascade)
+  inviteeId String @db.ObjectId
+  invitee   User   @relation("ReceivedInvitaions", fields: [inviteeId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime  @default(now())
+  respondedAt DateTime?
+
+  @@unique([teamId, inviteeId])
 }

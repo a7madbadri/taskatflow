@@ -1,11 +1,6 @@
 "use server";
 
-import {
-  createEditTeamTaskSchema,
-  createTeamSchema,
-  createTeamTaskSchema,
-  editTeamTaskSchema,
-} from "@/schemas/team";
+import { createEditTeamTaskSchema, createTeamSchema } from "@/schemas/team";
 import { actionClient } from "../safe-action";
 import { auth } from "@/auth";
 import {
@@ -15,17 +10,20 @@ import {
   getAssignmentById,
   getMembership,
   getTeamById,
+  inviteUser,
+  removeMember,
   toggleAssignmentStatus,
 } from "../services/team.services";
 import { createMembership } from "../services/membership.services";
 import { revalidatePath } from "next/cache";
-import z, { success } from "zod";
+import z from "zod";
 import {
   createTask,
   deleteTask,
   editTask,
   getTaskById,
 } from "../services/task.services";
+import { getUserById } from "../services/user.services";
 
 export const createTeamAction = actionClient
   .inputSchema(createTeamSchema)
@@ -36,12 +34,8 @@ export const createTeamAction = actionClient
         success: false,
         message: "Unauthenticated",
       };
-    const team = await createTeam(parsedInput);
-    await createMembership({
-      userId: session.user.id,
-      teamId: team.id,
-      role: "OWNER",
-    });
+
+    await createTeam(parsedInput, session.user.id);
     revalidatePath("/teams");
     return {
       success: true,
@@ -49,15 +43,84 @@ export const createTeamAction = actionClient
   });
 
 //! Retfactor in next version
-export const addUserAction = actionClient
+export const inviteUserAction = actionClient
   .inputSchema(
     z.object({
-      teamId: z.string(),
       userId: z.string(),
+      teamId: z.string(),
     }),
   )
-  .action(async ({ parsedInput }) => {
-    await addUser(parsedInput);
+  .action(async ({ parsedInput: { userId, teamId } }) => {
+    const session = await auth();
+    if (!session)
+      return {
+        success: false,
+        message: "Unauthenticated",
+      };
+    const team = await getTeamById({ id: teamId, select: { name: true } });
+    if (!team)
+      return {
+        success: false,
+        message: "Team isn't exists",
+      };
+    const membership = await getMembership({ teamId, userId: session.user.id });
+    if (!membership)
+      return {
+        success: false,
+        message: "You're not a member in team",
+      };
+    if (membership.role !== "OWNER")
+      return {
+        success: false,
+        message: "Only team owner can invite other users",
+      };
+    const invitee = await getUserById({ id: userId });
+    if (!invitee)
+      return {
+        success: false,
+        message: "This user isn't exists",
+      };
+    const inviteeMembership = await getMembership({ teamId, userId });
+    if (inviteeMembership)
+      return {
+        success: false,
+        message: "This user is already a member in this team",
+      };
+
+    await inviteUser(session.user.id, userId, teamId, team.name);
+    return {
+      success: true,
+    };
+  });
+
+export const removeMemberAction = actionClient
+  .inputSchema(
+    z.object({
+      userId: z.string(),
+      teamId: z.string(),
+    }),
+  )
+  .action(async ({ parsedInput: { userId, teamId } }) => {
+    const session = await auth();
+    if (!session)
+      return {
+        success: false,
+        message: "Unauthenticated",
+      };
+    const membership = await getMembership({ teamId, userId: session.user.id });
+    if (!membership || membership.role !== "OWNER")
+      return {
+        success: false,
+        message: "Unauthorized",
+      };
+    const userMembership = await getMembership({ teamId, userId });
+    if (!userMembership)
+      return {
+        success: false,
+        message: "This user isn't a member",
+      };
+    await removeMember(userMembership.id, teamId);
+    revalidatePath(`/team/${teamId}`);
     return {
       success: true,
     };
@@ -75,7 +138,7 @@ export const createEditTeamTaskAction = actionClient
           success: false,
           message: "Unauthenticated",
         };
-      const team = await getTeamById(teamId);
+      const team = await getTeamById({ id: teamId });
       if (!team)
         return {
           success: false,
@@ -254,7 +317,7 @@ export const deleteTeamTaskAction = actionClient
         success: false,
         message: "Unauthenticated",
       };
-    const team = await getTeamById(teamId);
+    const team = await getTeamById({ id: teamId });
     if (!team)
       return {
         success: false,

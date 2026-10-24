@@ -1,23 +1,17 @@
 "use client";
 
-import { handleOutsideClick } from "@/utils";
-import { AnimatePresence, motion } from "framer-motion";
-import { ChevronLeft, MoreVertical } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import HeaderMenu, { HeaderMenuProps } from "./HeaderMenu";
-
-type Option = {
-  label: string;
-  action: () => void;
-};
+import { JSX } from "react/jsx-runtime";
 
 interface Props {
   title: string;
   fallbackPath?: string;
   headerMenuProps?: HeaderMenuProps;
   className?: string;
+  More?: () => JSX.Element;
 }
 
 function Header({
@@ -25,15 +19,12 @@ function Header({
   fallbackPath = "/",
   headerMenuProps,
   className,
+  More,
 }: Props) {
   const router = useRouter();
-  const [isOptionsMenuOpen, setIsOptionsMenuOpen] = useState(false);
 
   const handleBack = () => {
-    if (
-      window.history.length > 1 &&
-      document.referrer.includes(window.location.host)
-    ) {
+    if (window.history.length > 1) {
       router.back();
     } else {
       router.push(fallbackPath);
@@ -42,7 +33,7 @@ function Header({
   return (
     <header
       className={twMerge(
-        "main-card h-12 flex items-center px-2 gap-2 sticky top-0 z-1",
+        "main-card min-h-12 flex items-center px-2 gap-2 sticky top-0 z-1",
         className,
       )}
     >
@@ -54,6 +45,7 @@ function Header({
       </button>
       <h3 className="flex-1">{title}</h3>
       {headerMenuProps && <HeaderMenu {...headerMenuProps} />}
+      {More && <More />}
     </header>
   );
 }

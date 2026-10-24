@@ -1,21 +1,25 @@
 import AddTask from "@/app/(user)/tasks/components/AddTask";
 import MyTasks from "@/app/(user)/tasks/components/MyTasks";
 import { auth } from "@/auth";
-import prisma from "@/lib/prisma";
+import { getUserTasks, isTaskFilter } from "@/utils/tasks";
 
-async function Tasks() {
+type Props = {
+  searchParams: Promise<{ filter?: TaskFilters }>;
+};
+
+async function Tasks({ searchParams }: Props) {
+  const params = await searchParams;
   const session = await auth();
   if (!session) return null;
 
-  const tasks = await prisma.task.findMany({
-    where: { userId: session.user.id },
-    orderBy: { createdAt: "desc" },
-  });
+  const filter =
+    params.filter && isTaskFilter(params.filter) ? params.filter : "all";
+  const tasks = await getUserTasks(session.user.id, filter);
 
   return (
     <>
       <AddTask />
-      <MyTasks tasks={tasks} />
+      <MyTasks tasks={tasks} filter={filter} />
     </>
   );
 }
