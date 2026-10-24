@@ -2,12 +2,13 @@
 
 import Button from "@/components/Button";
 import InputField from "@/components/InputField";
-import { addUserAction } from "@/lib/actions/team.actions";
+import { inviteUserAction } from "@/lib/actions/team.actions";
 import { searchUsersAction } from "@/lib/actions/user.actions";
 import { Search } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
 import Image from "next/image";
-import { useActionState, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { useDebounce } from "use-debounce";
 
 interface Props {
@@ -23,6 +24,9 @@ export default function InviteMemberSection({ teamId }: Props) {
       name: string;
       email: string;
       image: string | null;
+      receivedInvitaions: {
+        id: string;
+      }[];
     }[]
   >([]);
   const { execute, status } = useAction(searchUsersAction, {
@@ -44,6 +48,7 @@ export default function InviteMemberSection({ teamId }: Props) {
       execute({ teamId, query });
     }
   }, [execute, query, teamId]);
+  console.log(result);
   return (
     <div className="w-full max-w-100 mx-auto">
       <InputField
@@ -52,16 +57,27 @@ export default function InviteMemberSection({ teamId }: Props) {
         Icon={Search}
         placeholder="User's email"
       />
-      {!value && (
+      {(!query || query.length < 2) && (
         <p className="text-sm text-slate-600 text-center p-3">
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Maiores,
-          dolore.
+          Search for users by email
         </p>
       )}
+      {query && query.length >= 2 && isPending && (
+        <p className="text-sm text-slate-600 text-center p-3">Searching...</p>
+      )}
+      {query && query.length >= 2 && !isPending && !result.length && (
+        <p className="text-sm text-slate-600 text-center p-3">No results</p>
+      )}
+
       {
         <div className="py-3">
           {result.map((user) => (
-            <User {...user} teamId={teamId} key={user.id} />
+            <User
+              {...user}
+              teamId={teamId}
+              isInvited={user.receivedInvitaions.length > 0}
+              key={user.id}
+            />
           ))}
         </div>
       }
@@ -74,16 +90,23 @@ const User = ({
   image,
   name,
   teamId,
+  isInvited,
 }: {
   id: string;
   image: string | null;
   name: string;
   teamId: string;
+  isInvited: boolean;
 }) => {
-  const [added, setAdded] = useState(false);
-  const { execute, status } = useAction(addUserAction, {
+  const [invited, setInvited] = useState(isInvited);
+  const { execute, status } = useAction(inviteUserAction, {
     onSuccess({ data }) {
-      if (data.success) setAdded(true);
+      if (data.success) {
+        setInvited(true);
+        toast.success("User has been invited!");
+      } else if (!data.success && data.message) {
+        toast.error(data.message);
+      }
     },
   });
   const isPending = status === "executing";
@@ -92,20 +115,20 @@ const User = ({
       <Image
         src={image || "/images/profile-pic.png"}
         alt="profile"
-        width={38}
-        height={38}
-        className="rounded-full bg-slate-300 border border-slate-400 size-9.5"
+        width={36}
+        height={36}
+        className="rounded-full bg-slate-300 border border-slate-400 size-9"
       />
-      <p className="flex-1 overflow-hidden text-ellipsis text-nowrap">{name}</p>
-      {!added && (
-        <Button
-          theme="primary"
-          onClick={() => execute({ teamId, userId: id })}
-          disabled={isPending}
-        >
-          {isPending ? "Adding" : "Invite"}
-        </Button>
-      )}
+      <p className="flex-1 overflow-hidden text-ellipsis text-nowrap text-sm">
+        {name}
+      </p>
+      <Button
+        theme="primary"
+        onClick={() => execute({ teamId, userId: id })}
+        disabled={isPending || invited}
+      >
+        {invited ? "Invited" : isPending ? "Inviting" : "Invite"}
+      </Button>
     </div>
   );
 };

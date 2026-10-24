@@ -48,6 +48,22 @@ async function page({ params }: Props) {
     },
     take: 8,
   });
+  const membersPromise = prisma.membership.findMany({
+    where: { teamId },
+    orderBy: { role: "desc" },
+    select: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+        },
+      },
+      role: true,
+    },
+    take: 7,
+  });
 
   const assignmentsPromise = new Promise<NormalizedAssignment[]>(
     async (resolve) => {
@@ -76,7 +92,7 @@ async function page({ params }: Props) {
   );
 
   return (
-    <div className="grid grid-cols-1 content-start rounded-t-xl gap-3 h-full scrollbar-hide overflow-auto lg:overflow-hidden lg:grid-rows-[auto_1fr] lg:grid-cols-2 xl:grid-cols-3">
+    <div className="grid grid-cols-1 content-start rounded-t-xl gap-4 h-full scrollbar-hide overflow-auto lg:overflow-hidden lg:grid-rows-[auto_1fr] lg:grid-cols-2 xl:grid-cols-3">
       <Header
         title={team.name}
         // headerMenuProps={{
@@ -92,6 +108,7 @@ async function page({ params }: Props) {
           membersCount={memberships.length}
           description={team.description}
           avatarsPromise={membersAvatars}
+          membersPromise={membersPromise}
         />
       </Suspense>
       <Suspense>

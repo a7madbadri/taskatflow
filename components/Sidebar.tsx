@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import Nav from "./Nav";
 import { usePathname } from "next/navigation";
 import { handleOutsideClick } from "@/utils";
+import Link from "next/link";
 
 function Sidebar() {
   const sidebarRef = useRef<HTMLDivElement | null>(null);
@@ -39,7 +40,7 @@ function Sidebar() {
           TaskatFlow
         </h1>
         <button
-          className={`size-9 grid place-items-center text-indigo-600 rounded-full absolute right-1.5 lg:hidden duration-150 hover:bg-white/50 ${isExpanded ? "" : ""}`}
+          className={`size-9 grid place-items-center text-indigo-600 rounded-full absolute right-1.5 lg:hidden duration-150 hover:bg-white/50`}
           onClick={() => setisExpanded(!isExpanded)}
         >
           {isExpanded ? (
@@ -51,15 +52,25 @@ function Sidebar() {
       </div>
       <Nav isExpanded={isExpanded} />
       <div className="">
-        <div className="h-12 text-slate-700 flex items-center mb-2 duration-150 hover:bg-white/40">
-          <span className="size-12 min-w-12 grid place-items-center text-slate-700">
-            <Bell size={20} />
-          </span>
-          <label
-            className={`duration-150 pointer-events-none ${isExpanded ? "opacity-100" : "opacity-0 lg:opacity-100"}`}
-          >
-            Notifications
-          </label>
+        <div className="h-10  mb-2">
+          {(() => {
+            const active = pathname.startsWith("/notifications");
+            return (
+              <Link
+                href="/notifications"
+                className={`flex items-center duration-150 ${active ? "text-indigo-600 bg-indigo-100" : "text-slate-700 hover:bg-slate-100"}`}
+              >
+                <span className="h-10 min-w-11.5 grid place-items-center">
+                  <Bell size={20} />
+                </span>
+                <label
+                  className={`duration-150 pointer-events-none ${isExpanded ? "opacity-100" : "opacity-0 lg:opacity-100"}`}
+                >
+                  Notifications
+                </label>
+              </Link>
+            );
+          })()}
         </div>
         <div className="mb-3 px-2 flex items-center gap-2">
           <Image

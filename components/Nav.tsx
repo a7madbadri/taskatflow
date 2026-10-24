@@ -18,13 +18,13 @@ function Nav({ isExpanded }: { isExpanded: boolean }) {
           return (
             <li
               key={link.label}
-              className={`h-12 ${active ? "text-indigo-600" : "text-slate-700"}`}
+              className={`h-10 ${active ? "text-indigo-600" : "text-slate-700"}`}
             >
               <Link
                 href={link.href}
-                className="flex items-center duration-150 hover:bg-white/40"
+                className={`h-full flex items-center duration-150 ${active ? "bg-indigo-100" : "hover:bg-slate-100"}`}
               >
-                <span className="size-12 min-w-12 grid place-items-center">
+                <span className="min-w-11.5 h-10 bg-slae-600 grid place-items-center">
                   <Icon size={20} />
                 </span>
                 <label
